@@ -1,20 +1,21 @@
 ﻿namespace JoF.SolarCalcs.Fs.Library.Standard
 
-// TODO: use UT throughout (convert actual time...)
-
 // http://aa.quae.nl/en/reken/hemelpositie.html#4
 module MoonCalcs =
 
     open Dates
     open Math
     open System
-    open JoF.SolarCalcs.Fs.Library.Standard.Converter
 
     type Means =
         L = 0
         | M = 1
         | F = 2
     
+    type RiseOrSet =
+        | Rise
+        | Set
+
     type MeanData(c0: double, c1: double) =
         member this.c0 = c0
         member this.c1 = c1
@@ -47,18 +48,14 @@ module MoonCalcs =
         Z2: double
     }
 
-    type RiseSet = {
-        Time: DateTime
-        Azimuth: double
-        IsRise: bool
-    }
-
     type MoonData = {
-        Rise: RiseSet
-        Set: RiseSet
+        Rise: double
+        Set: double
         Transit: DateTime
-        Azimuth: double
-        Location: Location
+        RiseAzimuth: double
+        SetAzimuth: double
+        TransitAzimuth: double
+        Distance: double
     }
 
     let MeanData (m: Means) =
@@ -218,71 +215,6 @@ module MoonCalcs =
         else
             { Events = 0; MinMax = { X = xe; Y = ye }; Z1 = 0.; Z2 = 0. }
 
-    let GetSign x =
-        match x with
-        | n when n < 0. -> -1.
-        | n when n > 0. -> 1.
-        | _ -> 0.
-    
-    let TestHourForEvent k lmst lat loc = 
-        //let K1 = 15. * Math.PI / 180. * 1.0027379
-
-        //let loc1, loc2, loc3 = loc.[0], loc.[1], loc.[2]
-
-        //let ran2 = if loc2.ra < loc0.ra then loc2.ra + 2. * Math.PI else loc2.ra
-        
-        //let ha0 = lmst - loc0.ra + k * K1
-        //let ha2 = lmst - loc2.ra + k * K1 + K1
-
-        //let ha1 = (ha2 + ha0) / 2.
-        //let dec1 = (loc2.dec + loc0.dec) / 2.
-
-        //let s = dsin lat
-        //let c = dcos lat
-
-        //let z = dcos(90.567 - 41.685 / loc1.parallax)
-
-        //loc0.vh <- if k <= 0. then s * sin(loc0.dec) + c * cos(loc2.dec) * cos(ha2) - z else 0.
-
-        //loc2.vh <- s * sin(loc2.dec) + c * cos(loc2.dec) * cos(ha2) - z
-
-        //// get sign...
-        //let signvhz = (GetSign loc0.vh = GetSign loc2.vh)
-
-        //if signvhz then
-        //    0., 0., 0., false, loc2.vh
-        //else
-        //    let vhz1 = s * sin(dec1) + c * cos(dec1) * cos(ha1) - z
-
-        //    let a = 2. * loc2.vh - 4. * vhz1 + 2. * loc0.vh
-        //    let b = 4. * vhz1 - 3. * loc0.vh - loc2.vh
-        //    let mutable d = b * b - 4. * a * loc0.vh
-            
-        //    if d < 0. then
-        //        0., 0., 0., false, loc2.vh  // no event this hour
-        //    else
-        //        d <- sqrt d
-        //        let mutable e = (-b + d) / (2. * a)
-
-        //        e <- if (e > 1. || e < 0.) then ((-b - d) / (2. * a)) else e
-
-        //        let time = k + e + 1. / 120.
-        //        let hour = floor time
-        //        let minute = floor (time - hour) * 60.
-
-        //        let hz = ha0 + e * (ha2 - ha0)
-        //        let nz = -cos(loc1.dec) * sin(hz)
-        //        let dz = c * sin(loc1.dec) - s * cos(loc1.dec) * cos(hz)
-        //        let mutable az = atan2 nz dz / (Math.PI / 180.)
-        //        az <- if az < 0. then az + 360. Maths az
-
-        //        let rise = (loc0.vh < 0. && loc2.vh > 0.)
-        
-        //        hour, minute, az, rise, loc2.vh
-        
-        //0., 0, 0, false, 0.
-        0.
-    
     let LocalHourAngle (date: DateTime) longitude =
         let lmst = Dates.LocalMeanSiderealTime date longitude
         let ra = FundamentalArguments(JulianDate2000 date).RightAscension * Degrees
@@ -298,10 +230,10 @@ module MoonCalcs =
         let sinh = dsin latitude * sin declination + dcos latitude * cos declination * dcos hourangle
         let tanaz = -dsin hourangle / (dcos latitude * tan declination - dsin latitude * dcos hourangle)
 
-        let h = (asin sinh) % Tpi
-        let az = (atan tanaz) % Tpi
+        let h = asin sinh
+        let az = atan tanaz
 
-        { TrueAltitude = h; Azimuth = az - Math.Pi }
+        { TrueAltitude = CheckInRange h Tpi; Azimuth = CheckInRange az Pi }
 
     let ParallaxInAltitude (date: DateTime) altitude =
         let distance = (GeocentricEclipticCoords date).delta
@@ -314,111 +246,34 @@ module MoonCalcs =
         // altitude in degrees, R in minutes of arc, apparent altitude is h + R
         1.02 / dtan(altitude + (10.3 / (altitude + 5.11)))
 
-    //// TODO: what is v??
-    //let TestForRise v0 v2 =
-    //    //let v0 = s * sin(dec0) + c * cos(dec0) * cos(h0) - z
-    //    //let v2 = s * sin(dec2) + c * cos(dec2) * cos(h2) - z
-
-    //    if v0 < 0 && v2 > 0 then true else false
-
-    //let TestForSet v0 v2 =
-    //    if v0 > 0 && v2 < 0 then true else false
-    
-    //let TestForNoRise v0 v2 m8 =
-    //    if m8 == 0 && v0 > 0 && v2 < 0 then true else false
-
-    //let TestForNoSet v0 v2 w8 =
-    //    if w8 == 0 && v0 < 0 && v2 > 0 then true else false
-
-    //// TODO: what is m8, w8, v2??
-    //let TestForDownAllDay m8 w8 v2 =
-    //    if m8 == 0 && w8 == 0 then
-    //        if v2 < 0 then true else false
-    //    else false
-
-    //let TestForUpAllDay m8 w8 v2 =
-    //    if m8 == 0 && w8 == 0 then
-    //        if v2 > 0 then true else false
-    //    else false
-
     let RiseSetTimes (date: DateTime) latitude longitude =
         // TODO: get refraction working and use apparent alt (h - ref)
         let day = DateTime(date.Year, date.Month, date.Day, 0, 0, 0)
 
         let altitude0 = sin (8. / 60. * Radians)    // centre of moon at +8 arcmin
 
-        let mutable utrise = -1.
-        let mutable utset = -1.
-        let mutable rise = false
-        let mutable sett = false
-
-        let mutable ym = (sin (LunarHorizonCoordinates day latitude longitude).TrueAltitude) - altitude0
+        let ym = (sin (LunarHorizonCoordinates day latitude longitude).TrueAltitude) - altitude0
         let above = ym > 0.
 
-        [1 .. 2 .. 24] |> List.iter (fun x ->
-            let yz = (sin (LunarHorizonCoordinates (day.AddHours(float x + 0.)) latitude longitude).TrueAltitude) - altitude0
-            let yp = (sin (LunarHorizonCoordinates (day.AddHours(float x + 1.)) latitude longitude).TrueAltitude) - altitude0
+        let rec riseset hour ym rise set =
+            if hour > 24 then rise, set, above
+            else
+                let yz = sin (LunarHorizonCoordinates (day.AddHours(float hour + 0.)) latitude longitude).TrueAltitude - altitude0
+                let yp = sin (LunarHorizonCoordinates (day.AddHours(float hour + 1.)) latitude longitude).TrueAltitude - altitude0
 
-            let quad = Quadratic ym yz yp
+                let quad = Quadratic ym yz yp
 
-            // TODO: oh dear lord...
-            if quad.Events.Equals 1 then 
-                utrise <- 
-                    if ym < 0. then double x + quad.Z1 else utrise
-                utset <-
-                    if ym >= 0. then double x + quad.Z1 else utset
+                match quad.Events with
+                    | e when e.Equals 1 ->
+                        if ym < 0. then
+                            riseset (hour + 2) yp (double hour + quad.Z1) set
+                        else 
+                            riseset (hour + 2) yp rise (double hour + quad.Z1)
+                    | e when e.Equals 2 ->
+                        if quad.MinMax.Y < 0. then
+                            riseset (hour + 2) yp (double hour + quad.Z2) (double hour + quad.Z1)
+                        else
+                            riseset (hour + 2) yp (double hour + quad.Z1) (double hour + quad.Z2)
+                    | _ -> riseset (hour + 2) yp rise set
 
-                rise <- 
-                    if ym < 0. then true else rise
-                sett <-
-                    if ym >= 0. then true else sett
-
-            if quad.Events.Equals 2 then
-                utrise <- 
-                    if quad.MinMax.Y < 0. then double x + quad.Z2 else double x + quad.Z1
-
-                utset <-
-                    if quad.MinMax.Y < 0. then double x + quad.Z1 else double x + quad.Z2
-
-            ym <- yp
-        )
-
-        ( DecimalToHms utrise, DecimalToHms utset, rise, sett, above )
-
-        //if rise.Equals true || sett.Equals true then
-        //    if rise.Equals true then printfn " %f " utrise
-        //    else printfn " ----"
-        //    if sett.Equals true then printfn " %f " utset
-        //    else printfn " ----"
-        //else
-        //    if above.Equals true then printfn "always up"
-        //    else printfn "always down"
-
-
-        //[0..23] |> List.map(fun x -> (
-        //    x
-        //))
-
-        //let jd = JulianDate2000 date
-        //let lmst = LocalMeanSiderealTime date long
-
-        //let loc = [0; 1; 2] |> List.map(fun x -> FundamentalArguments(jdz + float x / 2.))
-
-        //loc.[1].ra <- if loc.[1].ra <= loc.[0].ra then loc.[1].ra + 2. * Math.PI else loc.[1].ra
-        //loc.[2].ra <- if loc.[2].ra <= loc.[1].ra then loc.[2].ra + 2. * Math.PI else loc.[2].ra
-
-        //let hma = [0..23] |> List.map(fun x -> x)
-
-        //for k = 0 to 23 do
-        //    let ph = (float k + 1.) / 24.
-        //    loc.[2].ra <- Interpolate loc.[0].ra loc.[1].ra loc.[2].ra ph
-        //    loc.[2].dec <- Interpolate loc.[0].dec loc.[1].dec loc.[2].dec ph
-
-        //    let hour, minute, az, rise, vhz = TestHourForEvent (float k) lmst lat loc
-
-        //    loc.[0].ra = loc.[2].ra
-        //    loc.[0].dec = loc.[2].dec
-        //    loc.[0].vh = vhz
-
-        //    Debug.WriteLine("hour: " + hour.ToString() + " minute: " + minute.ToString()
-        //                    + " rise: " + rise.ToString() + " az: " + az.ToString());
+        riseset 0 ym 0. 0.

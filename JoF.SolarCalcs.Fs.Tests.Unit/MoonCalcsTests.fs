@@ -5,6 +5,7 @@ module MoonCalcsTests =
     open System
     open Xunit
     open JoF.SolarCalcs.Fs.Library.Standard
+    open JoF.SolarCalcs.Fs.Library.Standard.Converter
 
     let myDate = DateTime.Parse "18 February 2017, 16:00:00"
 
@@ -83,28 +84,31 @@ module MoonCalcsTests =
     let ``Moon RiseSetTimes March2018_8 areCorrect``() =
         let d = DateTime.Parse "8 March 2018, 14:00:00"
         let lat, long = 51., -0.1
-        let utrise, utset, rise, sett, above = MoonCalcs.RiseSetTimes d lat long
-        AssertDelta 0. (float utrise.Hour) 0.
-        AssertDelta 18. (float utrise.Minute) 5.
-        AssertDelta 9. (float utset.Hour) 0.
-        AssertDelta 50. (float utset.Minute) 5.
+        let rise, set, above = MoonCalcs.RiseSetTimes d lat long
+        let utRise, utSet = DecimalToHms rise, DecimalToHms set
+        AssertDelta 0. (float utRise.Hour) 0.
+        AssertDelta 20. (float utRise.Minute) 5.
+        AssertDelta 9. (float utSet.Hour) 0.
+        AssertDelta 47. (float utSet.Minute) 5.
 
     [<Fact>]
     let ``Moon RiseSetTimes March2018_10 areCorrect``() =
         let d = DateTime.Parse "10 March 2018, 14:00:00"
         let lat, long = 51., -0.1
-        let utrise, utset, rise, sett, above = MoonCalcs.RiseSetTimes d lat long
-        AssertDelta 2. (float utrise.Hour) 0.
-        AssertDelta 17. (float utrise.Minute) 5.
-        AssertDelta 11. (float utset.Hour) 0.
-        AssertDelta 5. (float utset.Minute) 5.
+        let rise, set, above = MoonCalcs.RiseSetTimes d lat long
+        let utRise, utSet = DecimalToHms rise, DecimalToHms set
+        AssertDelta 2. (float utRise.Hour) 0.
+        AssertDelta 20. (float utRise.Minute) 5.
+        AssertDelta 11. (float utSet.Hour) 0.
+        AssertDelta 2. (float utSet.Minute) 5.
+        Assert.False above
 
     [<Fact>]
     let ``Moon RiseSetTimes Feb1998_18 areCorrect``() =
         // https://www.timeanddate.com/moon/uk/london?month=2&year=1998
         let d = DateTime.Parse "18 February 1998, 14:00:00"
         let lat, long = 51., -0.1
-        let utrise, utset, rise, sett, above = MoonCalcs.RiseSetTimes d lat long
-        Assert.Equal(false, rise)
-        AssertDelta 10. (float utset.Hour) 0.
-        AssertDelta 04. (float utset.Minute) 5.
+        let rise, set, above = MoonCalcs.RiseSetTimes d lat long
+        let utRise, utSet = DecimalToHms rise, DecimalToHms set
+        AssertDelta 10. (float utSet.Hour) 0.
+        AssertDelta 04. (float utSet.Minute) 5.
