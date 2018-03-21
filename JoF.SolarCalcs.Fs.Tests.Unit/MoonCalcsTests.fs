@@ -23,7 +23,7 @@ module MoonCalcsTests =
         AssertDelta 400136. coords.delta 0.2
 
     [<Fact>]
-    let ``Moon Position``() =
+    let ``Moon Position March2018_8 isCorrect``() =
         // https://www.satellite-calculations.com/Satellite/suncalc.htm
         let d = DateTime.Parse "8 March 2018, 14:00:00"
         let coords = MoonCalcs.GeocentricEclipticCoords d
@@ -35,7 +35,7 @@ module MoonCalcsTests =
     let ``Moon Location May1991 isCorrect``() =
         let d = DateTime.Parse "19 May 1991, 13:00:00"
         let jdz = Dates.JulianDate2000 d
-        let loc = MoonCalcs.Location jdz |> Seq.item 0
+        let loc = MoonCalcs.FundamentalArguments jdz
         let ra, dec, p = loc.RightAscension, loc.Declination, loc.Parallax
         AssertDelta 133.44 (ra * Math.Degrees) 0.2
         AssertDelta 15.53 (dec * Math.Degrees) 0.2
@@ -112,3 +112,33 @@ module MoonCalcsTests =
         let utRise, utSet = DecimalToHms rise, DecimalToHms set
         AssertDelta 10. (float utSet.Hour) 0.
         AssertDelta 04. (float utSet.Minute) 5.
+
+    [<Fact>]
+    let ``Moon Illumination March2018_10 isCorrect``() =
+        let d = DateTime.Parse "10 March 2018, 14:00:00"
+        let ill = MoonCalcs.Illumination d
+        AssertDelta 0.41 ill 0.03
+
+    [<Fact>]
+    let ``Moon Illumination March2018_8 isCorrect``() =
+        let d = DateTime.Parse "8 March 2018, 14:00:00"
+        let ill = MoonCalcs.Illumination d
+        AssertDelta 0.59 ill 0.03
+       
+    [<Fact>]
+    let ``Moon Age myBirthday2017 isCorrect``() =
+        let d = DateTime.Parse "18 February 2017, 16:00:00"
+        let age = MoonCalcs.Age d
+        AssertDelta 21.86 age 0.26
+
+    [<Fact>]
+    let ``Moon Age March2018_8 isCorrect``() =
+        let d = DateTime.Parse "8 March 2018, 14:00:00"
+        let age = MoonCalcs.Age d
+        AssertDelta 21.25 age 0.26
+
+    [<Fact>]
+    let ``Moon Distance March2018_8 isCorrect``() =
+        let d = DateTime.Parse "8 March 2018, 14:00:00"
+        let age = MoonCalcs.Age d
+        AssertDelta 405439. age 100.

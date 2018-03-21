@@ -5,6 +5,7 @@ module MoonCalcs =
 
     open Dates
     open Math
+    open SunCalcs
     open System
 
     type Means =
@@ -56,6 +57,9 @@ module MoonCalcs =
         SetAzimuth: double
         TransitAzimuth: double
         Distance: double
+        Elevation: double
+        Age: double
+        Illumination: double
     }
 
     let MeanData (m: Means) =
@@ -86,44 +90,6 @@ module MoonCalcs =
         // longitude, latitude, distance
         { lambda = lambda; beta = beta; delta = delta }
 
-    let SunPosition (jd: Double) =
-        0.
-
-    //let Position (jd: Double, sunPosition: Double) =
-     //   let mutable ms = 0.985647332099 * jd - 3.762863
-     //   ms <- if ms < 0. then dsin(ms + 360.) else dsin(ms)
-
-     //   let mutable l = 13.176396 * jd + 64.975464
-
-     //   let mm = l - 0.1114041 * j - 349.383063
-    //let i = (mm/360).toNumber()
-    //let mm -= i * 360.0
-    //let n = 151.950429 - 0.0529539 * j
-    //let i = (n / 360).toNumber()
-    //let n -= i * 360.0
-    //let ev = 1.2739 * dsin(2 * (l - ls) - mm)
-    //let ae = 0.1858 * ms
-    //let mm += ev - ae - 0.37 * ms
-    //let ec = 6.2886 * dsin mm
-    //let l += ev + ec - ae + 0.214 * dsin(2 * mm)
-    //l = 0.6583 * dsin(2 * (l - ls)) + l
-
-    //l
-        //0.
-
-    //let Phase (date: DateTime) =
-    //    let jd = JulianDate2000 date
-    //    let sunPosition = SunPosition jd
-    //    let moonPosition = Position(jd, sunPosition)
-
-    //    let x = (((1. - dcos(moonPosition - sunPosition) / 2.) * 1000.) + 0.5) / 10.
-
-    //    let position = moonPosition - sunPosition
-
-    //    let t = if position < 0. then position + 180. else position
-
-    //    if t > 180. then x * -1. else x
-    
     let FundamentalArguments jd: Location =
         // www.skyandtelescope.com/wp-content/uploads/moonup.bas
         let tpi = 2. * Math.PI
@@ -184,9 +150,6 @@ module MoonCalcs =
 
         { RightAscension = ra; Declination = dec; Parallax = parallax } // degrees
 
-    let Location jd =
-        [0; 1; 2] |> List.map(fun x -> FundamentalArguments(jd + float x / 2.))
-    
     let Interpolate f0 f1 f2 p =
         let a = f1 - f0
         let b = f2 - f1 - a
@@ -277,3 +240,20 @@ module MoonCalcs =
                     | _ -> riseset (hour + 2) yp rise set
 
         riseset 0 ym 0. 0.
+
+    let Illumination (date: DateTime) = 
+        let sunRa = SunCalcs.RightAscension date * Radians
+        let sunDec = SunCalcs.Declination date * Radians
+        let moonLocation = FundamentalArguments (JulianDate2000 date)
+
+        (1. - cos(acos(sin sunDec * sin moonLocation.Declination 
+            + cos sunDec * cos moonLocation.Declination * cos moonLocation.RightAscension
+            - sunRa)))
+            * 0.5
+
+    let Age (date: DateTime) = 
+        // http://www.skyandtelescope.com/wp-content/uploads/moonfx.bas
+        let jd = JulianDateTime date - 2451550.1    // or use midday?
+        let v = jd / 29.530588853
+        CheckInRange v 1. * 29.53
+ 
