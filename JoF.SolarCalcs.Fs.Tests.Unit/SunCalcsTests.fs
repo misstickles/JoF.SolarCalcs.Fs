@@ -4,6 +4,7 @@ module SunCalcsTests =
     open System
     open Xunit
     open JoF.SolarCalcs.Fs.Library.Standard
+    open JoF.SolarCalcs.Fs.Library.Standard.Converter
 
     let AssertDelta exp act delta =
         let low = exp - delta
@@ -45,7 +46,7 @@ module SunCalcsTests =
 
     [<Fact>]
     let ``Sun Declination myBirthday isCorrect``() =
-        AssertDelta -11.486667 (SunCalcs.Declination myDate) 0.04 // ~2'25
+        AssertDelta -11.486667 (SunCalcs.Declination myDate) 0.1
 
     [<Fact>]
     let ``Sun RightAscensionSun 2018March_10 isCorrect``() =
@@ -55,7 +56,7 @@ module SunCalcsTests =
     [<Fact>]
     let ``Sun Declination 2018March_10 isCorrect``() =
         let d = DateTime.Parse "10 March 2018, 14:00:00"        
-        AssertDelta -4.080556 (SunCalcs.Declination d) 0.08
+        AssertDelta -4.080556 (SunCalcs.Declination d) 0.1
 
     [<Fact>]
     let ``Sun EquationOfTime myBirthday isCorrect``() =
@@ -70,12 +71,28 @@ module SunCalcsTests =
         AssertDelta 76.96823 (SunCalcs.HourAngleSunrise myDate lat) 0.003
 
     [<Fact>]
+    let ``Sun Rise March2018_10 isCorrect``() =
+        let d = DateTime.Parse("10 March 2018, 14:00:00")
+        let rise = DecimalToHms (SunCalcs.SunRise d lat lon)
+        AssertDelta 6. (float rise.Hour) 0.
+        AssertDelta 26. (float rise.Minute) 5.
+
+    [<Fact>]
     let ``Sun Rise myBirthday isCorrect``() =
         AssertDelta 7.1333 (SunCalcs.SunRise myDate lat lon) 0.01
 
     [<Fact>]
+    let ``Sun Set March2018_10 isCorrect``() =
+        let d = DateTime.Parse("10 March 2018, 14:00:00")
+        let set = DecimalToHms (SunCalcs.SunSet d lat lon)
+        AssertDelta 17. (float set.Hour) 0.
+        AssertDelta 57. (float set.Minute) 5.
+
+    [<Fact>]
     let ``Sun Set myBirthday isCorrect``() =
-        AssertDelta 17.3500 (SunCalcs.SunSet myDate lat lon) 0.0002
+        let lat, long = 51., -0.1
+        let set = SunCalcs.SunSet myDate lat long
+        AssertDelta 17.3500 set 0.0002
 
     [<Fact>]
     let ``Sun TrueSolarTime myBirthday isCorrect``() =
@@ -83,7 +100,14 @@ module SunCalcsTests =
 
     [<Fact>]
     let ``Sun HourAngle myBirthday isCorrect``() =
-        AssertDelta 56.52743 (SunCalcs.HourAngle myDate lon) 0.001
+        let ha = SunCalcs.HourAngle myDate lon
+        AssertDelta 56.52743 ha 0.001
+
+    [<Fact>]
+    let ``Sun HourAngle March2018_10 isCorrect``() =
+        let d = DateTime.Parse("10 March 2018, 14:00:00")
+        let ha = SunCalcs.HourAngle d lon
+        AssertDelta 85.916 ha 0.001
 
     [<Fact>]
     let ``Sun SolarZenithAngle myBirthday isCorrect``() =
