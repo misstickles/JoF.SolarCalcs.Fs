@@ -48,26 +48,26 @@ module MoonCalcsTests =
         AssertDelta 308.25 lha 0.04
 
     [<Fact>]
-    let ``Moon HorizonCoordinates March2018 isCorrect``() =
+    let ``Moon HorizonCoordinates March2018_10 isCorrect``() =
         // http://aa.usno.navy.mil/cgi-bin/aa_altazw.pl?form=2&body=10&year=2018&month=3&day=8&intv_mag=10&place=&lon_sign=-1&lon_deg=0&lon_min=6&lat_sign=1&lat_deg=51&lat_min=0&tz=0&tz_sign=-1
-        let d = DateTime.Parse "8 March 2018, 14:00:00"
+        let d = DateTime.Parse "10 March 2018, 2:20:00"
         let lat, long = 51., -0.1
         let coords = MoonCalcs.LunarHorizonCoordinates d lat long
-        AssertDelta 29.6 (coords.TrueAltitude * Math.Degrees) 0.001
-        AssertDelta 211.6 (coords.Azimuth * Math.Degrees) 0.04
+        AssertDelta 122.6 (coords.Azimuth * Math.Degrees) 2.5
+        AssertDelta 0. (coords.TrueAltitude * Math.Degrees) 2.
 
     [<Fact>]
     let ``Moon HorizonCoordinates May1991 isCorrect``() =
         let d = DateTime.Parse "19 May 1991, 13:00:00"
         let lat, long = 50., 10.
         let coords = MoonCalcs.LunarHorizonCoordinates d lat long
-        AssertDelta 36.100 (coords.TrueAltitude * Math.Degrees) 0.001
         AssertDelta 110.6 (coords.Azimuth * Math.Degrees) 0.04
+        AssertDelta 35.300 (coords.TrueAltitude * Math.Degrees) 1.
 
     [<Fact>]
     let ``Moon ParallaxInAltitude May1991 isCorrect``() =
         let d = DateTime.Parse "19 May 1991, 13:00:00"
-        let lat, long = 10., 50.
+        let lat, long = 50., 10.
         let coords = MoonCalcs.LunarHorizonCoordinates d lat long
         let parallax = MoonCalcs.ParallaxInAltitude d coords.TrueAltitude
         AssertDelta 0.8 parallax 1.
@@ -81,15 +81,15 @@ module MoonCalcsTests =
         AssertDelta 0.0004 r 0.0001
     
     [<Fact>]
-    let ``Moon RiseSetTimes March2018_8 areCorrect``() =
-        let d = DateTime.Parse "8 March 2018, 14:00:00"
+    let ``Moon RiseSetTimes March2018_7 areCorrect``() =
+        let d = DateTime.Parse "7 March 2018, 14:00:00"
         let lat, long = 51., -0.1
         let rise, set, above = MoonCalcs.RiseSetTimes d lat long
         let utRise, utSet = DecimalToHms rise, DecimalToHms set
-        AssertDelta 0. (float utRise.Hour) 0.
-        AssertDelta 20. (float utRise.Minute) 5.
+        AssertDelta -1. (float utRise.Hour) 0.
+        AssertDelta -1. (float utRise.Minute) 5.
         AssertDelta 9. (float utSet.Hour) 0.
-        AssertDelta 47. (float utSet.Minute) 5.
+        AssertDelta 17. (float utSet.Minute) 5.
 
     [<Fact>]
     let ``Moon RiseSetTimes March2018_10 areCorrect``() =
@@ -115,15 +115,15 @@ module MoonCalcsTests =
 
     [<Fact>]
     let ``Moon Illumination March2018_10 isCorrect``() =
-        let d = DateTime.Parse "10 March 2018, 14:00:00"
+        let d = DateTime.Parse "10 March 2018, 8:00:00"
         let ill = MoonCalcs.Illumination d
-        AssertDelta 0.41 ill 0.03
+        AssertDelta 0.42 ill 0.006
 
     [<Fact>]
     let ``Moon Illumination March2018_8 isCorrect``() =
-        let d = DateTime.Parse "8 March 2018, 14:00:00"
+        let d = DateTime.Parse "8 March 2018, 8:00:00"
         let ill = MoonCalcs.Illumination d
-        AssertDelta 0.59 ill 0.03
+        AssertDelta 0.61 ill 0.02
        
     [<Fact>]
     let ``Moon Age myBirthday2017 isCorrect``() =

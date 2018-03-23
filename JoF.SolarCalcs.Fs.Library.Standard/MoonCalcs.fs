@@ -213,13 +213,13 @@ module MoonCalcs =
         // TODO: get refraction working and use apparent alt (h - ref)
         let day = DateTime(date.Year, date.Month, date.Day, 0, 0, 0)
 
-        let altitude0 = sin (8. / 60. * Radians)    // centre of moon at +8 arcmin
+        let altitude0 = dsin (8. / 60.)    // centre of moon at +8 arcmin
 
-        let ym = (sin (LunarHorizonCoordinates day latitude longitude).TrueAltitude) - altitude0
+        let ym = sin (LunarHorizonCoordinates day latitude longitude).TrueAltitude - altitude0
         let above = ym > 0.
 
         let rec riseset hour ym rise set =
-            if hour > 24 then rise, set, above
+            if hour >= 24 then rise, set, above 
             else
                 let yz = sin (LunarHorizonCoordinates (day.AddHours(float hour + 0.)) latitude longitude).TrueAltitude - altitude0
                 let yp = sin (LunarHorizonCoordinates (day.AddHours(float hour + 1.)) latitude longitude).TrueAltitude - altitude0
@@ -239,7 +239,7 @@ module MoonCalcs =
                             riseset (hour + 2) yp (double hour + quad.Z1) (double hour + quad.Z2)
                     | _ -> riseset (hour + 2) yp rise set
 
-        riseset 0 ym 0. 0.
+        riseset 0 ym -1. -1.
 
     let Illumination (date: DateTime) = 
         let sunRa = SunCalcs.RightAscension date * Radians
