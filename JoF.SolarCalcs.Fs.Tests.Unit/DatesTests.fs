@@ -61,3 +61,28 @@ module DatesTests =
         // TODO: why have I lost accuracy (from 0.02)
         AssertDelta 71.698 (Dates.GreenwichMeanSiderealTime d) 0.15
 
+    [<Fact>]
+    let ``Easter March2018 isCorrect``() =
+        let d = DateTime.Parse "10 March 2018, 14:00:00"
+        let easter = Dates.Easter d.Year
+        Assert.Equal(4, easter.Month)
+        Assert.Equal(1, easter.Day)
+
+    [<Fact>]
+    let ``Easter March2016 isCorrect``() =
+        let d = DateTime.Parse "10 March 2016, 14:00:00"
+        let easter = Dates.Easter d.Year
+        Assert.Equal(3, easter.Month)
+        Assert.Equal(27, easter.Day)
+
+    [<Fact>]
+    let ``Dates NextSunday isCorrect``() =
+        let d = DateTime.Parse "10 March 2018, 14:00:00"
+        let next = Dates.NextSunday d
+        Assert.Equal (11, next.Day)
+
+    [<Fact>]
+    let ``Dates NextSunday myBirthday2010 isCorrect``() =
+        let d = DateTime.Parse "18 February 2010, 14:00:00"
+        let next = Dates.NextSunday d
+        Assert.Equal (21, next.Day)

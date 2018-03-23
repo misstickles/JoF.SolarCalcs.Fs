@@ -6,6 +6,11 @@ module Dates =
 
     let SECONDS_IN_DAY = 86400.
 
+    type DayMonth = {
+        Day: int
+        Month: int
+    }
+
     let JulianDateTime (date : DateTime) = 
         let hour = double date.Hour
         let minute = double date.Minute
@@ -38,4 +43,20 @@ module Dates =
 
     let LocalMeanSiderealTime (date: DateTime) longitude =
         (GreenwichMeanSiderealTime date) + longitude % 360.
+    
+    let NextSunday (date: DateTime) =
+        let addDays = Math.CheckInRange (float (DayOfWeek.Sunday - date.DayOfWeek)) 7.
+
+        date.AddDays(addDays)
+
+    let Easter year =
+        // https://en.wikipedia.org/wiki/Computus#Adaptation_for_Western_Easter_of_Meeus'_Julian_algorithm
+        let a = year % 19
+        let b = (11 * a + 5) % 30
+        let c = if b.Equals 0 || (b.Equals 1 && a > 10) then b + 1 else b
+        let month = if c >= 1 && c <= 19 then 4 else 3
+        let day = (50 - c) % 31 + 1
+
+        NextSunday (DateTime (year, month, day))
+
 
