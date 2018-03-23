@@ -6,11 +6,6 @@ module Dates =
 
     let SECONDS_IN_DAY = 86400.
 
-    type DayMonth = {
-        Day: int
-        Month: int
-    }
-
     let JulianDateTime (date : DateTime) = 
         let hour = double date.Hour
         let minute = double date.Minute
