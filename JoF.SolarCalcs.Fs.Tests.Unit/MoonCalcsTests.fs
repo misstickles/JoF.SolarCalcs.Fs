@@ -140,5 +140,5 @@ module MoonCalcsTests =
     [<Fact>]
     let ``Moon Distance March2018_8 isCorrect``() =
         let d = DateTime.Parse "8 March 2018, 14:00:00"
-        let age = MoonCalcs.Age d
-        AssertDelta 405439. age 100.
+        let distance = MoonCalcs.GeocentricEclipticCoords d
+        AssertDelta 404940. distance.delta 5000.
