@@ -10,11 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Types.fs" />
     <Compile Include="Math.fs" />
     <Compile Include="Dates.fs" />
-    <Compile Include="Types.fs" />
     <Compile Include="Converter.fs" />
     <Compile Include="SunCalcs.fs" />
+    <Compile Include="SunCalcsA.fs" />
     <Compile Include="MoonCalcs.fs" />
     <Compile Include="SolarBodyCalcs.fs" />
   </ItemGroup>

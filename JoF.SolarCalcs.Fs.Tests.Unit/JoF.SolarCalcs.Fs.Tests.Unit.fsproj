@@ -55,7 +55,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="SunCalcsTests.fs" />
+    <Compile Include="SunCalcsTestsA.fs" />
     <Compile Include="MoonCalcsTests.fs" />
     <Content Include="packages.config" />
     <Compile Include="DatesTests.fs" />
@@ -64,6 +64,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="MathTests.fs" />
+    <Compile Include="SunCalcsTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
