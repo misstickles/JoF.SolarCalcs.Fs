@@ -79,7 +79,7 @@ module SolarBodyTests =
 
     [<Fact>]
     let ``Planet HourAngleJupiter isCorrect``() =
-        let ha = HourAngle myDate Planet.Jupiter -5.
+        let ha = HourAngle myDate Planet.Jupiter 5.
         AssertDelta -65.174 ha 0.001   // -4h 20m 42s
 
     [<Fact>]
@@ -89,25 +89,25 @@ module SolarBodyTests =
 
     [<Fact>]
     let ``Planet CelestialPositionJupiter isCorrect``() =
-        let position = CelestialPosition myDate Planet.Jupiter 51. -5.
-        AssertDelta 19.500 position.Altitude 0.001
-        AssertDelta -73.383 position.Azimuth 0.001
+        let position = CelestialPosition myDate Planet.Jupiter 52. 5.
+        AssertDelta 19.500 position.Altitude 0.08
+        AssertDelta -73.383 position.Azimuth 0.08
 
     [<Fact>]
     let ``Planet CelestialPositionVenus March2018_8 isCorrect``() =
-        let d = DateTime.Parse "8 March 2018, 7:03:00"
-        let position = CelestialPosition d Planet.Venus 51. -5.
+        let d = DateTime.Parse "8 March 2018, 13:04:00"
+        let position = CelestialPosition d Planet.Venus 51. -0.1
         //AssertDelta 19.500 position.Altitude 0.001
         AssertDelta 38.7 position.Azimuth 0.1
 
     [<Fact>]
     let ``Planet RefractionJupiter isCorrect``() =
-        let ref = Refraction (CelestialPosition myDate Planet.Jupiter 51. -5.).Altitude
+        let ref = Refraction (CelestialPosition myDate Planet.Jupiter 51. 5.).Altitude
         AssertDelta 0.05 ref 0.017
 
     [<Fact>]
     let ``Planet TransitJupiter isCorrect``() =
-        let transit = Transit myDate Planet.Jupiter -5.
+        let transit = Transit myDate Planet.Jupiter 5.
         let t = DecimalToHms transit
         AssertDelta 4. (float t.Hour) 0.
         AssertDelta 20. (float t.Minute) 5.
@@ -122,7 +122,7 @@ module SolarBodyTests =
 
     [<Fact>]
     let ``Planet RistSetJupiter isCorrect``() =
-        let times = RiseSetTimes myDate Planet.Jupiter 52. -5.
+        let times = RiseSetTimes myDate Planet.Jupiter 52. 5.
         let r = DecimalToHms times.Rise
         let s = DecimalToHms times.Set
         AssertDelta 21. (float r.Hour) 0.

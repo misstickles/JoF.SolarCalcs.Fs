@@ -7,8 +7,6 @@ module SolarBodyCalcs =
     open System
     open JoF.SolarCalcs.Fs.Library.Standard.Math
 
-    let Radians = Math.PI / 180.
-    let Degrees = 180. / Math.PI
     let epsilon = 23.4397
 
     type Coords = {
@@ -36,6 +34,16 @@ module SolarBodyCalcs =
     type RiseSet = {
         Rise: double
         Set: double
+        Transit: double
+    }
+
+    type PlanetData = {
+        RiseTime: double
+        SetTime: double
+        TransitTime: double
+        RiseAzimuth: double
+        SetAzimuth: double
+        TransitAzimuth: double
     }
 
     type Planet = 
@@ -137,7 +145,6 @@ module SolarBodyCalcs =
     let HourAngle (date: DateTime) (planet: Planet) long =
         let lmst = LocalMeanSiderealTime date long
         let ra = (EquatorialCoordinates date planet).RightAscension
-        let x = 0.
         lmst - ra
 
     let Refraction altitude =
@@ -168,5 +175,10 @@ module SolarBodyCalcs =
         let dec = (EquatorialCoordinates date planet).Declination
         let hHorizon = acos ((dsin h - dsin latitude * dsin dec) / (dcos latitude * dcos dec)) * Degrees
         let transit = Transit date planet longitude
-        { Rise = CheckInRange (transit - (hHorizon / 15.)) 24.; Set = CheckInRange (transit + (hHorizon / 15.)) 24. }
+        { Rise = CheckInRange (transit - (hHorizon / 15.)) 24.; Set = CheckInRange (transit + (hHorizon / 15.)) 24.; Transit = transit }
 
+    let PlanetData (date: DateTime) (planet: Planet) latitude longitude =
+        let times = RiseSetTimes date planet latitude longitude
+
+        { RiseTime = times.Rise; SetTime = times.Set; TransitTime = times.Transit;
+            RiseAzimuth = 0.; SetAzimuth = 0.; TransitAzimuth = 0. }
