@@ -30,6 +30,12 @@ module Math =
     let dtan x =
         tan(Radians * x)
 
+    let datan2 x y =
+        atan2 (x * Radians) (y * Radians)
+
+    let dasin x =
+        asin (x * Radians)
+
     let frac x: Double =
         x - floor x
     
@@ -60,3 +66,43 @@ module Math =
         else
             { Events = 0; MinMax = { X = xe; Y = ye }; Z1 = 0.; Z2 = 0. }
 
+    let Kepler eccentricity meanAnomoly =
+        let maxIterations, epsilon = 10, 0.00001
+
+        let e = meanAnomoly * Radians
+        let m = if eccentricity < 0.8 then e else Pi
+
+        let rec kepl found iter ecc m e0 =
+            if found || iter > maxIterations then
+                e0
+            else
+                // TODO: !!!! find a delta to compare!!
+                let e1 = e0 + ((m + ecc * sin e0 - e0) / (1. - ecc * cos e0))
+                kepl false (iter + 1) ecc m e1
+
+        kepl false 0 eccentricity m e
+
+        //let rec kepl found iter ecc m e0 =
+        //    if found || iter > maxIterations then 
+        //        e0
+        //    else
+        //        let delta = e0 - ecc * sin m - m
+        //        let e1 = (cos e0 - e) / (1. - ecc * cos e0)
+        //        kepl (abs delta <= epsilon) (iter + 1) ecc m e1
+
+        //kepl false 0 eccentricity m e
+
+//let m = meanAnomoly / 360.
+        //let m = 2. * Pi * (m - floor m)
+
+        //let e0 = if eccentricity < 0.8 then m else Pi
+        //let e1 = e0 - eccentricity * sin m - m
+
+        //let rec kep found iter ecc m e0 e1 =
+        //    if found || (iter > maxIterations) then e0
+        //    else
+        //        let e2 = e0 - (e1 / (1. - eccentricity * cos e0))
+        //        let e3 = e2 - eccentricity * sin e0 - m
+        //        kep (abs e3 <= delta) (iter + 1) ecc m e2 e3
+        
+        //kep false 0 eccentricity m e0 e1

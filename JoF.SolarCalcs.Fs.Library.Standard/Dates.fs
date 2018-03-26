@@ -29,12 +29,10 @@ module Dates =
 
         let theta0 = 280.46061837 
                     + 360.98564736629 * jd2000
-                    + 0.000387933 * jdc2000 * jd2000
-                    - 0.0000000258333 * jdc2000 * jdc2000 * jdc2000
+                    + 0.000387933 * jdc2000 * jdc2000
+                    - 2.58333e-8 * jdc2000 * jdc2000 * jdc2000
 
-        match theta0 with 
-            | x when x < 0. -> theta0 % 360. + 360.
-            | _ -> theta0 % 360.
+        Math.CheckInRange theta0 360.
 
     let LocalMeanSiderealTime (date: DateTime) longitude =
         (GreenwichMeanSiderealTime date) + longitude % 360.
