@@ -5,7 +5,6 @@ module MoonCalcs =
 
     open Dates
     open Math
-    open SunCalcs
     open System
 
     type Means =
@@ -33,6 +32,12 @@ module MoonCalcs =
         delta: double
     }
 
+    type RiseSet = {
+        RiseTime: double
+        SetTime: double
+        Above: bool
+    }
+
     type HorizonCoordinates = {
         TrueAltitude: double
         Azimuth: double
@@ -41,10 +46,10 @@ module MoonCalcs =
     type MoonData = {
         Rise: double
         Set: double
-        Transit: DateTime
+        Transit: double
         RiseAzimuth: double
         SetAzimuth: double
-        TransitAzimuth: double
+        TransitAltitude: double
         Distance: double
         Elevation: double
         Age: double
@@ -185,7 +190,7 @@ module MoonCalcs =
         let above = ym > 0.
 
         let rec riseset hour ym rise set =
-            if hour >= 24 then rise, set, above 
+            if hour >= 24 then { RiseTime = rise; SetTime = set; Above = above }
             else
                 let yz = sin (LunarHorizonCoordinates (day.AddHours(float hour + 0.)) latitude longitude).TrueAltitude - altitude0
                 let yp = sin (LunarHorizonCoordinates (day.AddHours(float hour + 1.)) latitude longitude).TrueAltitude - altitude0
@@ -206,16 +211,21 @@ module MoonCalcs =
                     | _ -> riseset (hour + 2) yp rise set
 
         riseset 0 ym -1. -1.
+    
+    let Elongation (date: DateTime) =
+        let jd = JulianDate2000 date
+        let moonLocation = FundamentalArguments jd
+        let sunLocation = SunCalcs.FundamentalArguments jd
+        let dlon = sunLocation.RightAscension - moonLocation.RightAscension
+        let moonDec, sunDec = moonLocation.Declination, sunLocation.Declination
+
+        acos(sin moonDec * sin sunDec + cos moonDec * cos sunDec * cos dlon)
 
     let Illumination (date: DateTime) = 
-        let sunRa = SunCalcsA.RightAscension date * Radians
-        let sunDec = SunCalcsA.Declination date * Radians
-        let moonLocation = FundamentalArguments (JulianDate2000 date)
+        // http://conga.oan.es/~alonso/doku.php?id=blog:sun_moon_position, Tomás Alonso Albi comment
+        let elong = Elongation date
 
-        (1. - cos(acos(sin sunDec * sin moonLocation.Declination 
-            + cos sunDec * cos moonLocation.Declination * cos moonLocation.RightAscension
-            - sunRa)))
-            * 0.5
+        (1. - (cos elong)) * 0.5
 
     let Age (date: DateTime) = 
         // http://www.skyandtelescope.com/wp-content/uploads/moonfx.bas
@@ -223,3 +233,23 @@ module MoonCalcs =
         let v = jd / 29.530588853
         CheckInRange v 1. * 29.53
  
+    let MoonData (date: DateTime) latitude longitude =
+        let times = RiseSetTimes date latitude longitude
+        let riseAz = (LunarHorizonCoordinates (Converter.DecimalTimeToDate date times.RiseTime) latitude longitude).Azimuth
+        let setAz = (LunarHorizonCoordinates (Converter.DecimalTimeToDate date times.SetTime) latitude longitude).Azimuth
+        // let transitAlt = (LunarHorizonCoordinates (Converter.DecimalToDate date times.RiseTime) latitude longitude).Azimuth
+
+        let eclipticCoords = GeocentricEclipticCoords date
+        let illumination = Illumination date
+        let age = Age date
+
+        { Rise = times.RiseTime; 
+            Set = times.SetTime; 
+            Transit = 0.; 
+            RiseAzimuth = riseAz;
+            SetAzimuth = setAz;
+            TransitAltitude = 0.;
+            Distance = eclipticCoords.delta;
+            Elevation = 0.;
+            Age = age;
+            Illumination = illumination }

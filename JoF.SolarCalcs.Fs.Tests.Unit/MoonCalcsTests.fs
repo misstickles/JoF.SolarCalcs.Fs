@@ -84,8 +84,8 @@ module MoonCalcsTests =
     let ``Moon RiseSetTimes March2018_7 areCorrect``() =
         let d = DateTime.Parse "7 March 2018, 14:00:00"
         let lat, long = 51., -0.1
-        let rise, set, above = MoonCalcs.RiseSetTimes d lat long
-        let utRise, utSet = DecimalToHms rise, DecimalToHms set
+        let times = MoonCalcs.RiseSetTimes d lat long
+        let utRise, utSet = DecimalToHms times.RiseTime, DecimalToHms times.SetTime
         AssertDelta -1. (float utRise.Hour) 0.
         AssertDelta -1. (float utRise.Minute) 5.
         AssertDelta 9. (float utSet.Hour) 0.
@@ -95,21 +95,21 @@ module MoonCalcsTests =
     let ``Moon RiseSetTimes March2018_10 areCorrect``() =
         let d = DateTime.Parse "10 March 2018, 14:00:00"
         let lat, long = 51., -0.1
-        let rise, set, above = MoonCalcs.RiseSetTimes d lat long
-        let utRise, utSet = DecimalToHms rise, DecimalToHms set
+        let times = MoonCalcs.RiseSetTimes d lat long
+        let utRise, utSet = DecimalToHms times.RiseTime, DecimalToHms times.SetTime
         AssertDelta 2. (float utRise.Hour) 0.
         AssertDelta 20. (float utRise.Minute) 5.
         AssertDelta 11. (float utSet.Hour) 0.
         AssertDelta 2. (float utSet.Minute) 5.
-        Assert.False above
+        Assert.False times.Above
 
     [<Fact>]
     let ``Moon RiseSetTimes Feb1998_18 areCorrect``() =
         // https://www.timeanddate.com/moon/uk/london?month=2&year=1998
         let d = DateTime.Parse "18 February 1998, 14:00:00"
         let lat, long = 51., -0.1
-        let rise, set, above = MoonCalcs.RiseSetTimes d lat long
-        let utRise, utSet = DecimalToHms rise, DecimalToHms set
+        let times = MoonCalcs.RiseSetTimes d lat long
+        let utRise, utSet = DecimalToHms times.RiseTime, DecimalToHms times.SetTime
         AssertDelta 10. (float utSet.Hour) 0.
         AssertDelta 04. (float utSet.Minute) 5.
 
@@ -142,3 +142,9 @@ module MoonCalcsTests =
         let d = DateTime.Parse "8 March 2018, 14:00:00"
         let distance = MoonCalcs.GeocentricEclipticCoords d
         AssertDelta 404940. distance.delta 5000.
+
+    [<Fact>]
+    let ``Moon MoonData March2018_29 isCorrect``() =
+        let d = DateTime.Parse "29 March 2018, 14:00:00"
+        let data = MoonCalcs.MoonData d 51. -0.1
+        AssertDelta 0.95 data.Illumination 0.01

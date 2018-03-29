@@ -2,6 +2,7 @@
 
 module Converter =
     open JoF.SolarCalcs.Fs.Library.Standard.Math
+    open System
 
     type HMS = {
         Hour: int
@@ -25,3 +26,27 @@ module Converter =
         let s = frac m * 3600.
 
         { Hour = int h; Minute = int (floor m); Second = s; Days = day }
+
+    let DecimalTimeToDate (date: DateTime) (time: double) =
+        let day = floor (time / 24.)
+        let h = floor time
+        let m = frac time * 60.
+        let s = frac m * 60.
+
+        let d = date.AddDays(day)
+
+        DateTime(d.Year, d.Month, d.Day, int h, int (floor m), int s)
+    
+    let DecimalToDate (date: DateTime) =
+        let h = date.Hour
+        let m = frac (float date.Minute) * 60.
+        let s = frac m * 60.
+
+        DateTime(date.Year, date.Month, date.Day, int h, int (floor m), int s)
+
+    let TimeToDecimal (date: DateTime) =
+        let a = float date.Hour
+        let b = (float date.Minute) / 60.
+        let c = (float date.Second) / 3600.
+
+        a + b + c

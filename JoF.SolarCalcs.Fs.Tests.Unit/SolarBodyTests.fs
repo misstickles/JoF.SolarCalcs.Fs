@@ -164,4 +164,11 @@ module SolarBodyTests =
         AssertDelta 21. (float s.Hour) 0.
         AssertDelta 17. (float s.Minute) 5.
 
+    [<Fact>]
+    let ``Planet DataJupiter March2018_8 isCorrect``() =
+        // https://www.timeanddate.com/astronomy/night/
+        let d = DateTime.Parse "8 March 2018, 16:00:00"
+        let data = PlanetData d Planet.Jupiter 51. -0.1
+        AssertDelta 10. data.RiseTime 24.
+
 

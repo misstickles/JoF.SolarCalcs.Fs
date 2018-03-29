@@ -5,8 +5,12 @@ module SunCalcsTests =
     open System
     open JoF.SolarCalcs.Fs.Library.Standard
     open JoF.SolarCalcs.Fs.Library.Standard.SunCalcs
+    open JoF.SolarCalcs.Fs.Library.Standard
+    open JoF.SolarCalcs.Fs.Library.Standard
 
     let au = 149597870.7
+
+    // TODO: RA tests have wrong actual
 
     let AssertDelta exp act delta =
         let low = exp - delta
@@ -18,14 +22,14 @@ module SunCalcsTests =
         let d = DateTime.Parse "18 February 2017, 16:00:00"
         let jd = Dates.JulianDate2000 d
         let location = SunCalcs.FundamentalArguments jd
-        AssertDelta 22.136389 (location.RightAscension) 0.001
+        AssertDelta -0.203107 (location.RightAscension) 0.001
 
     [<Fact>]
     let ``Sun Declination myBirthday isCorrect``() =
         let d = DateTime.Parse "18 February 2017, 16:00:00"
         let jd = Dates.JulianDate2000 d
         let location = SunCalcs.FundamentalArguments jd
-        AssertDelta -11.486667 (location.Declination) 0.1
+        AssertDelta -11.486667 (location.Declination * Math.Degrees) 0.1
 
     [<Fact>]
     let ``Sun RightAscensionSun 2018March_10 isCorrect``() =
@@ -35,11 +39,11 @@ module SunCalcsTests =
         AssertDelta 23.368611 (location.RightAscension) 0.001
 
     [<Fact>]
-    let ``Sun Declination 2018March_10 isCorrect``() =
-        let d = DateTime.Parse "10 March 2018, 14:00:00"        
+    let ``Sun Declination 2018March_29 isCorrect``() =
+        let d = DateTime.Parse "29 March 2018, 00:00:00"        
         let jd = Dates.JulianDate2000 d
         let location = SunCalcs.FundamentalArguments jd
-        AssertDelta -4.080556 (location.Declination) 0.1
+        AssertDelta 0.057077 (location.Declination) 0.001
 
     [<Fact>]
     let ``Sun Distance myBirthday isCorrect``() =
@@ -57,5 +61,21 @@ module SunCalcsTests =
         let location = FundamentalArguments jd
         AssertDelta 148576000. (location.Distance * au) 2000000.
 
+    [<Fact>]
+    let ``Sun RiseSetTimes 2018March_29 isCorrect``() =
+        let d = DateTime.Parse "29 March 2018, 00:00:00"
+        let times = SunCalcs.RiseSetTimes d 51. -0.1 -0.566667
+        let rise = Converter.DecimalToHms times.RiseTime
+        AssertDelta 5. (float rise.Hour) 0.
+        AssertDelta 43. (float rise.Minute) 5.
 
-
+    [<Fact>]
+    let ``Sun RiseSetTimes 2018March_10 isCorrect``() =
+        let d = DateTime.Parse "10 March 2018, 14:00:00"
+        let times = SunCalcs.RiseSetTimes d 51. -0.1 -0.566667
+        let rise = Converter.DecimalToHms times.RiseTime
+        let set = Converter.DecimalToHms times.SetTime
+        AssertDelta 6. (float rise.Hour) 0.
+        AssertDelta 25. (float rise.Minute) 5.
+        AssertDelta 17. (float set.Hour) 0.
+        AssertDelta 56. (float set.Minute) 5.

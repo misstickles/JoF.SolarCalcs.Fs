@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>A little F# library to calculate rise and set events in the solar system</Description>
+    <Product>Basic calculations for rising and setting events</Product>
+    <Authors>Jo Faircloth</Authors>
+    <Company>Yukky Bananas</Company>
+    <Version>0.0.7</Version>
+    <PackageTags>Sun Moon Planets Rise Set times</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageId>JoF.SolarCalcs.Fs.Library.Standard</PackageId>
+    <Title>JoF.SolarCalcs</Title>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,10 +23,10 @@
     <Compile Include="Math.fs" />
     <Compile Include="Dates.fs" />
     <Compile Include="Converter.fs" />
-    <Compile Include="SunCalcs.fs" />
-    <Compile Include="SunCalcsA.fs" />
-    <Compile Include="MoonCalcs.fs" />
     <Compile Include="SolarBodyCalcs.fs" />
+    <Compile Include="SunCalcs.fs" />
+    <Compile Include="MoonCalcs.fs" />
+    <Compile Include="SunCalcsA.fs" />
   </ItemGroup>
 
   <ItemGroup>

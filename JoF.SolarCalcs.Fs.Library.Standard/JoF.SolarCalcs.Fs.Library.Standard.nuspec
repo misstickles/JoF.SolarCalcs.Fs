@@ -3,20 +3,20 @@
   <metadata>
     <id>JoF.SolarCalcs.Fs.Library.Standard</id>
     <version>0.0.5</version>
-    <title>Basic calculations for sun rise/set</title>
+    <title>Basic calculations for riseing and setting events</title>
     <authors>Jo Faircloth</authors>
     <owners>Jo Faircloth</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A little F# library to calculate solar system event data</description>
     <releaseNotes>Initial release</releaseNotes>
     <copyright>Copyright 2018</copyright>
-    <tags>Sun rise</tags>
+    <tags>Sun Moon Planets Rise Set times</tags>
     <dependencies>
       <dependency id="FSharp.Core" version="4.3.4" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Debug\netstandard2.0\JoF.SolarCalcs.Fs.Library.Standard.dll" target="lib\monoandroid10" />
     <file src="bin\Debug\netstandard2.0\JoF.SolarCalcs.Fs.Library.Standard.dll" target="lib\netstandard2.0" />
+    <file src="bin\Debug\netstandard2.0\JoF.SolarCalcs.Fs.Library.Standard.dll" target="lib\MonoAndroid71" />
   </files>
 </package>

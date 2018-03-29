@@ -43,7 +43,10 @@ module SolarBodyCalcs =
         TransitTime: double
         RiseAzimuth: double
         SetAzimuth: double
-        TransitAzimuth: double
+        TransitAltitude: double
+        Distance: double
+        RightAscension: double
+        Declination: double
     }
 
     type Planet = 
@@ -100,7 +103,6 @@ module SolarBodyCalcs =
         // TODO: this is just MeanAnomoly
         let E = Kepler e m
         CheckInRange (atan2 (sqrt (1. - e * e) * sin E) (cos E - e) * Degrees) 360.
-        //144.637   // Jupiter
 
     // distance, r from a, e, v
     let DistanceToSun (date: DateTime) (planet: Planet) =
@@ -155,7 +157,7 @@ module SolarBodyCalcs =
         let dec = (EquatorialCoordinates date planet).Declination
         let ha = HourAngle date planet longitude
         let h = asin (dsin latitude * dsin dec + dcos latitude * dcos dec * dcos ha) * Degrees
-        let az = atan2 (dsin ha) (dcos ha * dsin latitude - dtan dec * dcos latitude) * Degrees
+        let az = (atan2 (dsin ha) (dcos ha * dsin latitude - dtan dec * dcos latitude) + Pi) * Degrees
         { Altitude = (h + Refraction h); Azimuth = az }
 
     // psi from geocentric ecliptic coords of sun and planet
@@ -179,6 +181,12 @@ module SolarBodyCalcs =
 
     let PlanetData (date: DateTime) (planet: Planet) latitude longitude =
         let times = RiseSetTimes date planet latitude longitude
+        let riseAz = (CelestialPosition (Converter.DecimalTimeToDate date times.Rise) planet latitude longitude).Azimuth
+        let setAz = (CelestialPosition (Converter.DecimalTimeToDate date times.Set) planet latitude longitude).Azimuth
+        let transitAlt = (CelestialPosition (Converter.DecimalTimeToDate date times.Transit) planet latitude longitude).Altitude
+        let eqCoords = EquatorialCoordinates date planet
 
         { RiseTime = times.Rise; SetTime = times.Set; TransitTime = times.Transit;
-            RiseAzimuth = 0.; SetAzimuth = 0.; TransitAzimuth = 0. }
+            RiseAzimuth = riseAz; SetAzimuth = setAz; TransitAltitude = transitAlt;
+            Distance = DistanceToSun date planet; RightAscension = eqCoords.RightAscension;
+            Declination = eqCoords.Declination }
