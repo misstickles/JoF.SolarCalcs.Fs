@@ -18,11 +18,16 @@ module SunCalcs =
         Above: bool
     }
 
-    type RiseSetTimes = {
+    type RiseSetAzimuth = {
         RiseTime: double
         SetTime: double
         RiseAzimuth: double
         SetAzimuth: double
+    }
+
+    type RiseSetTimes = {
+        RiseTime: double
+        SetTime: double
     }
 
     type HorizonCoordinates = {
@@ -31,14 +36,17 @@ module SunCalcs =
     }
 
     type SunData = {
-        Rise: RiseSetTimes
+        Rise: RiseSetAzimuth
         Civil: RiseSetTimes
         Nautical: RiseSetTimes
         Astronomical: RiseSetTimes
-        Transit: double
-        TransitAltitude: double
+        Noon: double
+        NoonAltitude: double
         CurrentAltitude: double
         Distance: double
+        Declination: double
+        RightAscension: double
+
     }
 
     let MeanAnomoly (date : DateTime) =
@@ -113,7 +121,7 @@ module SunCalcs =
         // TODO: get refraction working and use apparent alt (h - ref)
         let day = DateTime(date.Year, date.Month, date.Day, 0, 0, 0)
 
-        let altitude0 = dsin degrees
+        let altitude0 = degrees * Radians
 
         let ym = sin (HorizonCoordinates day latitude longitude).TrueAltitude - altitude0
         let above = ym > 0.
@@ -155,18 +163,15 @@ module SunCalcs =
         
         let riseAz = (HorizonCoordinates (Converter.DecimalTimeToDate date times.RiseTime) latitude longitude).Azimuth
         let setAz = (HorizonCoordinates (Converter.DecimalTimeToDate date times.SetTime) latitude longitude).Azimuth
-        let civilRiseAz = (HorizonCoordinates (Converter.DecimalTimeToDate date civil.RiseTime) latitude longitude).Azimuth
-        let civilSetAz = (HorizonCoordinates (Converter.DecimalTimeToDate date civil.SetTime) latitude longitude).Azimuth
-        let nauticalRiseAz = (HorizonCoordinates (Converter.DecimalTimeToDate date nautical.RiseTime) latitude longitude).Azimuth
-        let nauticalSetAz = (HorizonCoordinates (Converter.DecimalTimeToDate date nautical.SetTime) latitude longitude).Azimuth
-        let astronomicalRiseAz = (HorizonCoordinates (Converter.DecimalTimeToDate date astronomical.RiseTime) latitude longitude).Azimuth
-        let astronomicalSetAz = (HorizonCoordinates (Converter.DecimalTimeToDate date astronomical.SetTime) latitude longitude).Azimuth
-        
-        let transitTime = Transit date longitude
-        let transitAlt = (HorizonCoordinates (Converter.DecimalTimeToDate date transitTime) latitude longitude).TrueAltitude
+
+        let noon = Transit date longitude
+        let noonAlt = (HorizonCoordinates (Converter.DecimalTimeToDate date noon) latitude longitude).TrueAltitude
         let currentAlt = (HorizonCoordinates (Converter.DecimalToDate date) latitude longitude).TrueAltitude
 
-        let distance = (FundamentalArguments (JulianDate2000 date)).Distance
+        let location = FundamentalArguments (JulianDate2000 date)
+        let distance = location.Distance
+        let dec = location.Declination
+        let ra = location.RightAscension
 
         {   Rise = {
                             RiseTime = times.RiseTime;
@@ -175,20 +180,16 @@ module SunCalcs =
                             SetAzimuth = setAz };
             Civil = {
                             RiseTime = civil.RiseTime;
-                            SetTime = civil.SetTime;
-                            RiseAzimuth = civilRiseAz;
-                            SetAzimuth = civilSetAz };
+                            SetTime = civil.SetTime; };
             Nautical = {
                             RiseTime = nautical.RiseTime;
-                            SetTime = nautical.SetTime;
-                            RiseAzimuth = nauticalRiseAz;
-                            SetAzimuth = nauticalSetAz };
+                            SetTime = nautical.SetTime; };
             Astronomical = { 
                             RiseTime = astronomical.RiseTime;
-                            SetTime = astronomical.SetTime;
-                            RiseAzimuth = astronomicalRiseAz;
-                            SetAzimuth = astronomicalSetAz };
-            Transit = transitTime;
-            TransitAltitude = transitAlt;
+                            SetTime = astronomical.SetTime; };
+            Noon = noon;
+            NoonAltitude = noonAlt;
             CurrentAltitude = currentAlt;
-            Distance = distance }
+            Distance = distance;
+            Declination = dec;
+            RightAscension = ra }

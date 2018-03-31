@@ -29,8 +29,9 @@ module Converter =
 
     let DecimalTimeToDate (date: DateTime) (time: double) =
         let day = floor (time / 24.)
-        let h = floor time
-        let m = frac time * 60.
+        let t = time - day * 24.
+        let h = floor t
+        let m = frac t * 60.
         let s = frac m * 60.
 
         let d = date.AddDays(day)
@@ -43,10 +44,3 @@ module Converter =
         let s = frac m * 60.
 
         DateTime(date.Year, date.Month, date.Day, int h, int (floor m), int s)
-
-    let TimeToDecimal (date: DateTime) =
-        let a = float date.Hour
-        let b = (float date.Minute) / 60.
-        let c = (float date.Second) / 3600.
-
-        a + b + c

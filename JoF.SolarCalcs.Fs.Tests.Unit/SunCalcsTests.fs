@@ -5,8 +5,6 @@ module SunCalcsTests =
     open System
     open JoF.SolarCalcs.Fs.Library.Standard
     open JoF.SolarCalcs.Fs.Library.Standard.SunCalcs
-    open JoF.SolarCalcs.Fs.Library.Standard
-    open JoF.SolarCalcs.Fs.Library.Standard
 
     let au = 149597870.7
 
@@ -43,7 +41,7 @@ module SunCalcsTests =
         let d = DateTime.Parse "29 March 2018, 00:00:00"        
         let jd = Dates.JulianDate2000 d
         let location = SunCalcs.FundamentalArguments jd
-        AssertDelta 0.057077 (location.Declination) 0.001
+        AssertDelta 0.05722546 (location.Declination) 0.001
 
     [<Fact>]
     let ``Sun Distance myBirthday isCorrect``() =
@@ -79,3 +77,14 @@ module SunCalcsTests =
         AssertDelta 25. (float rise.Minute) 5.
         AssertDelta 17. (float set.Hour) 0.
         AssertDelta 56. (float set.Minute) 5.
+
+    [<Fact>]
+    let ``Sun SunData 2018March_29 isCorrect``() =
+        let d = DateTime.Parse "29 March 2018, 9:12:31"
+        let times = SunCalcs.SunData d 51. -0.1
+        let rise = Converter.DecimalToHms times.Rise.RiseTime
+        let set = Converter.DecimalToHms times.Rise.SetTime
+        AssertDelta 5. (float rise.Hour) 0.
+        AssertDelta 43. (float rise.Minute) 5.
+        AssertDelta 18. (float set.Hour) 0.
+        AssertDelta 28. (float set.Minute) 5.

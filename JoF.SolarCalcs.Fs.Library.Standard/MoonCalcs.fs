@@ -6,6 +6,7 @@ module MoonCalcs =
     open Dates
     open Math
     open System
+    open System.Globalization
 
     type Means =
         L = 0
@@ -253,3 +254,10 @@ module MoonCalcs =
             Elevation = 0.;
             Age = age;
             Illumination = illumination }
+
+    let MoonPhasesMonth year month = 
+        let calendar = CultureInfo.CurrentCulture.Calendar
+        let daysInMonth = calendar.GetDaysInMonth(year, month)
+
+        [ for d in 1..daysInMonth do yield Illumination (DateTime(year, month, d, 12, 0, 0)) ]
+

@@ -148,3 +148,8 @@ module MoonCalcsTests =
         let d = DateTime.Parse "29 March 2018, 14:00:00"
         let data = MoonCalcs.MoonData d 51. -0.1
         AssertDelta 0.95 data.Illumination 0.01
+    
+    [<Fact>]
+    let ``Moon PhaseInMonth has30``() =
+        let phases = MoonCalcs.MoonPhasesMonth 2018 3
+        Assert.Equal(31, phases.Length)
