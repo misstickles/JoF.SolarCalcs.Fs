@@ -57,6 +57,11 @@ module MoonCalcs =
         Illumination: double
     }
 
+    type MoonPhase = {
+        Illumination: double
+        Age: double
+    }
+
     let MeanData (m: Means) =
         match m with
         | Means.L -> new MeanData(218.316, 13.176396)
@@ -259,5 +264,7 @@ module MoonCalcs =
         let calendar = CultureInfo.CurrentCulture.Calendar
         let daysInMonth = calendar.GetDaysInMonth(year, month)
 
-        [ for d in 1..daysInMonth do yield Illumination (DateTime(year, month, d, 12, 0, 0)) ]
+        [ for d in 1..daysInMonth do 
+            let date = DateTime(year, month, d, 12, 0, 0)
+            yield { Illumination = Illumination date; Age = Age date } ]
 
